@@ -15,7 +15,10 @@ class articulo:
     def print_articulo(self):
         print(self.seccion)
         print(self.url)
-        print(self.fecha,'\n')
+        print(self.fecha)
+        print(self.reseña)
+        print(self.titulo)
+        print(self.resumen,'\n')
 
 def list_new_secciones(links):
     news=BeautifulSoup(links.text,'html.parser')
@@ -40,6 +43,55 @@ def traer_fecha(articulo_url):
             print("\n")    
     return date
 
+def traer_titulo(articulo_url):
+    try:
+        s_articulo=requests.get(articulo_url)
+        if s_articulo.status_code== 200:
+            s_articulo2=BeautifulSoup(s_articulo.text,'html.parser')
+            titulo=s_articulo2.find('h1', attrs={'class':'article-title'})
+            title=titulo.get_text()
+        else:
+            title=None
+    except  ValueError as ve:
+            print("Hubo un error en la request")
+            print(ve)
+            print("\n")    
+    return title
+
+def traer_reseña(articulo_url):
+    try:
+        s_articulo=requests.get(articulo_url)
+        if s_articulo.status_code== 200:
+            s_articulo2=BeautifulSoup(s_articulo.text,'html.parser')
+            reseña=s_articulo2.find('h2', attrs={'class':'article-prefix'})
+            if reseña:
+                 res=reseña.get_text()
+            else:
+                res=None
+    except  ValueError as ve:
+            print("Hubo un error en la request")
+            print(ve)
+            print("\n")    
+    return res
+
+def traer_resumen(articulo_url):
+    try:
+        s_articulo=requests.get(articulo_url)
+        if s_articulo.status_code== 200:
+            s_articulo2=BeautifulSoup(s_articulo.text,'html.parser')
+            resume=s_articulo2.find('div', attrs={'class':'article-summary'})
+            if resume:
+                 rsume=resume.get_text()
+            else:
+                rsume=None
+    except  ValueError as ve:
+            print("Hubo un error en la request")
+            print(ve)
+            print("\n")    
+    return rsume
+
+
+
 def run():
     url= 'https://www.pagina12.com.ar/'
     p12= requests.get(url)
@@ -51,13 +103,11 @@ def run():
         sec=[]
         s=[]
         i=0
-        n=len(links_secciones)
-        print(n)
-        while i<n:
+        n=len(links_secciones)      
+        while i<2:
             a=secciones[i].a.get_text()
             sec=links_secciones[i]
             try:
-                print(a)
                 s=s+list_new_secciones(requests.get(sec))
                 for art in s:
                     lista_de_articulos.append(articulo(a,art,'','','','',''))                
@@ -69,7 +119,12 @@ def run():
         for obj in lista_de_articulos:
             a_url=obj.url
             obj.fecha= traer_fecha(a_url)
-            obj.print_articulo()
+            obj.titulo=traer_titulo(a_url)
+            obj.reseña=traer_reseña(a_url)
+            obj.resumen=traer_resumen(a_url)
+        
+        lista_de_articulos[0].print_articulo()
+        lista_de_articulos[-1].print_articulo()
         print(len(lista_de_articulos))
 
 if __name__=='__main__':
