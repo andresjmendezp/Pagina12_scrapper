@@ -1,6 +1,8 @@
 import requests
 from bs4 import BeautifulSoup
 import lxml.html as html
+from IPython.display import Image,display
+import numpy as np
 
 class articulo:
     def __init__(self, seccion, url,fecha,titulo,reseña,resumen,imagen_src):
@@ -18,7 +20,9 @@ class articulo:
         print(self.fecha)
         print(self.reseña)
         print(self.titulo)
-        print(self.resumen,'\n')
+        print(self.resumen)
+        
+        
 
 def list_new_secciones(links):
     news=BeautifulSoup(links.text,'html.parser')
@@ -74,6 +78,30 @@ def traer_reseña(articulo_url):
             print("\n")    
     return res
 
+def traer_imagen(articulo_url):
+    try:
+        s_articulo=requests.get(articulo_url)
+        if s_articulo.status_code== 200:
+            s_articulo2=BeautifulSoup(s_articulo.text,'html.parser')
+            media=s_articulo2.find('div', attrs={'class':'article-main-media-image'})
+            if media:
+                pics=media.find_all(('img'))
+                if(len(pics)==0):
+                     pic_source=None
+                else:
+                    pic=pics[-1]
+                    pic_source=pic.get('data-src')
+                    pic_req=requests.get(pic_source)
+                    if pic_req.status_code==200:
+                        article_pic=pic_req.content
+            else:
+                article_pic=None
+    except  ValueError as ve:
+            print("Hubo un error en la request")
+            print(ve)
+            print("\n")    
+    return article_pic
+
 def traer_resumen(articulo_url):
     try:
         s_articulo=requests.get(articulo_url)
@@ -91,7 +119,6 @@ def traer_resumen(articulo_url):
     return rsume
 
 
-
 def run():
     url= 'https://www.pagina12.com.ar/'
     p12= requests.get(url)
@@ -104,7 +131,7 @@ def run():
         s=[]
         i=0
         n=len(links_secciones)      
-        while i<2:
+        while i<n:
             a=secciones[i].a.get_text()
             sec=links_secciones[i]
             try:
@@ -122,9 +149,8 @@ def run():
             obj.titulo=traer_titulo(a_url)
             obj.reseña=traer_reseña(a_url)
             obj.resumen=traer_resumen(a_url)
+            obj.imagen_src=traer_imagen(a_url)
         
-        lista_de_articulos[0].print_articulo()
-        lista_de_articulos[-1].print_articulo()
         print(len(lista_de_articulos))
 
 if __name__=='__main__':
