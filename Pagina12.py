@@ -2,7 +2,7 @@ import requests
 from bs4 import BeautifulSoup
 import lxml.html as html
 from IPython.display import Image,display
-import numpy as np
+import pandas as pd
 
 class articulo:
     def __init__(self, seccion, url,fecha,titulo,reseña,resumen,imagen_src):
@@ -131,7 +131,7 @@ def run():
         s=[]
         i=0
         n=len(links_secciones)      
-        while i<n:
+        while i<1:
             a=secciones[i].a.get_text()
             sec=links_secciones[i]
             try:
@@ -151,7 +151,11 @@ def run():
             obj.resumen=traer_resumen(a_url)
             obj.imagen_src=traer_imagen(a_url)
         
+        #img=(Image(lista_de_articulos[0].imagen_src))
         print(len(lista_de_articulos))
+        df=pd.DataFrame(lista_de_articulos)
+        df.head()
+        df.to_csv('articulos Pagina 12.csv')
 
 if __name__=='__main__':
     run()
