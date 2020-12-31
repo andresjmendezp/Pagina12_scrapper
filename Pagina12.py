@@ -21,6 +21,9 @@ class articulo:
         print(self.reseña)
         print(self.titulo)
         print(self.resumen)
+    
+    def convertir_a_diccionario(self):
+        return {'seccion': self.seccion, 'url': self.url, 'fecha': self.fecha,'titulo':self.titulo,'reseña':self.reseña,'resumen':self.resumen}                       
         
         
 
@@ -131,7 +134,7 @@ def run():
         s=[]
         i=0
         n=len(links_secciones)      
-        while i<1:
+        while i<n:
             a=secciones[i].a.get_text()
             sec=links_secciones[i]
             try:
@@ -152,10 +155,14 @@ def run():
             obj.imagen_src=traer_imagen(a_url)
         
         #img=(Image(lista_de_articulos[0].imagen_src))
-        print(len(lista_de_articulos))
-        df=pd.DataFrame(lista_de_articulos)
+        arts={}
+        L_arts=[]
+        for a in lista_de_articulos:
+            arts=a.convertir_a_diccionario()
+            L_arts.append(arts)
+        df=pd.DataFrame(L_arts)
         df.head()
-        df.to_csv('articulos Pagina 12.csv')
+        df.to_csv('articulos Pagina 12.csv',encoding='utf-8-sig')
 
 if __name__=='__main__':
     run()
